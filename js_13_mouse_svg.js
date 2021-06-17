@@ -1,4 +1,5 @@
 G.SVG.MOUSE = {
+    //window corner of SVG
     f_svg_corner: function () { return G.EL.f_corner_window_coordinates(G.SVG.MAIN); },
 
     f_get_xy_by_event: function (clicked_event) {
