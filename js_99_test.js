@@ -4,7 +4,7 @@
     }
     G.EL.f_set_span_colors();
 
-    G.SVG.f_set_svg_sizes(G.EL.f_corner_window_coordinates(G.SVG.MAIN).y, 3);
+    G.SVG.f_set_svg_sizes(3);
 
     G.EL.f_do_sumbit_angles();
     G.EL.button_submit.onclick = G.EL.f_do_sumbit_angles;
@@ -15,4 +15,5 @@
 
     window.onresize = G.EL.f_resize;
     window.addEventListener("orientationchange", function() {G.EL.f_resize(); }, false);
+    G.EL.f_resize();
 }());

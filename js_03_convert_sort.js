@@ -21,6 +21,14 @@ G.CONVERT = {
         var str_x = G.CONVERT.f_n_to_string(arr_coord[0], accuracy_to_n_decimal_signs);
         var str_y = G.CONVERT.f_n_to_string(arr_coord[1], accuracy_to_n_decimal_signs);
         return (str_x + ',' + str_y);
+    },
+
+    f_order_to_perm: function (arr_of_obj_with_i) {
+        var arr_result = [];
+        for (var i = 0; i < arr_of_obj_with_i.length; i++) {
+            arr_result.push(arr_of_obj_with_i[i].i);
+        }
+        return arr_result;
     }
 };
 

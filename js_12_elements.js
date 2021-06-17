@@ -11,9 +11,10 @@ G.EL = {
 
     f_do_sumbit_angles: function () {
         var m = G.PROCESS.f_m();
-        var ab_total = G.SVG.AREAS.total;
 
-        var CUBE_SVG = G.SVG.f_create_64_cells(G.PROCESS.arr_64_colors, G.PROCESS.ab, G.PROCESS.gap_xy_h, m, ab_total);
+        G.PROCESS.arr_cube_with_perm = G.BOARD_3D.f_arr_64_cubes_with_perm(m, G.SVG.area_total, G.PROCESS.arr_64_colors);
+
+        var CUBE_SVG = G.SVG.f_create_64_svg_cells(G.PROCESS.arr_cube_with_perm, G.PROCESS.arr_64_colors);
 
         G.SVG.MAIN.innerHTML = CUBE_SVG;
     },
@@ -49,7 +50,7 @@ G.EL = {
     },
 
     f_resize: function () {
-        G.SVG.f_set_svg_sizes(G.EL.f_corner_window_coordinates(G.SVG.MAIN).y, 3);
+        G.SVG.f_set_svg_sizes(3);
         G.EL.f_do_sumbit_angles();
     }
 };

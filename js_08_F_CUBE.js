@@ -63,30 +63,16 @@ G.F_CUBE.f_by_side_2 = function () { return G.F_CUBE.f_by_two_points([-1, -1, -1
         return (this.v8[0].f_add_xyz(this.v8[7].v).f_scale_n(0.5));
     };
 
-    //bubble sort of faces by function f, that compare faces centers
-    G.F_CUBE.prototype.f_get_sorted_min_to_max_face_by_function = function (f_for_sort_centers) {
+    G.F_CUBE.prototype.f_permutation_face = function () {
         var arr_faces = [], arr_order = [], i;
 
         for (i = 0; i < 6; i++) {
             arr_faces.push(this.f_get_face(i));
             //order has property i (index)
-            arr_order.push({ i: i, value: f_for_sort_centers(arr_faces[i].center) });
+            arr_order.push({ i: i, value: arr_faces[i].center.v[2] });
         }
-        
         G.SORT.f_obj_value_i_bubble(arr_order);
-
-        //result is sorted array by property ".i"
-        var arr_faces_sorted = [];
-        for (i = 0; i < 6; i++) {
-            arr_faces_sorted.push(arr_faces[arr_order[i].i]);
-        }
-        return arr_faces_sorted;
-    };
-
-    //sign_order_min_max = -1 for min; = +1 for max; sort by order or reverse order
-    G.F_CUBE.prototype.f_get_sorted_min_or_max = function (sign_order_min_max) {
-        function f(gotten_center) { return (gotten_center.v[2] * sign_order_min_max); };
-        return (this.f_get_sorted_min_to_max_face_by_function(f));
+        return G.CONVERT.f_order_to_perm(arr_order);
     };
 
     G.F_CUBE.prototype.f_inscribe_in_area = function (ab_total, can_press, ab_this) {
@@ -95,6 +81,7 @@ G.F_CUBE.f_by_side_2 = function () { return G.F_CUBE.f_by_two_points([-1, -1, -1
     };
 
     G.F_CUBE.prototype.f_is_point_on_face_z = function (p_xy) {
+        //face Z0
         var p4 = this.f_get_face(4).p4;
         function f_is_in(na, nb) {
             var va = [p4[na].v[0] - p_xy.x, p4[na].v[1] - p_xy.y];

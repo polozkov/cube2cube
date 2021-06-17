@@ -6,6 +6,8 @@ G.PROCESS = {
 
     arr_moves: [],
 
+    arr_cube_with_perm: {},
+
     f_move_do: function (n_64, n_player) {
         this.arr_moves.push({n_64: n_64, n_player: n_player});
         G.PROCESS.arr_64_colors[n_64] = n_player;
@@ -27,10 +29,6 @@ G.PROCESS = {
             G.PROCESS.f_move_undo();
         }
     },
-
-    ab: G.F_AB.f_by_m22([[0, 0], [10, 10]]),
-    gap_xy_h: [12, 12, 10],
-
     //matrix with rotations on axis (x, y, z)
     f_m: function () {
         var x = G.EL.input_x.value;
@@ -39,22 +37,17 @@ G.PROCESS = {
         return G.F4_MATRIX.f_by_rotate_x(x).f_rotate_y(y).f_rotate_z(z)
     },
 
-    f_cube_final_to_draw: function (n_64) {
-        var cube = G.BOARD_3D.f_cube_by_nxyz(G.BOARD_3D.arr_64_to_xyz[n_64], G.PROCESS.ab, G.PROCESS.gap_xy_h, 0);
-        var cube_transform = cube.f_transform_cube(G.PROCESS.f_m());
-        var cube_result = cube_transform.f_inscribe_in_area(G.SVG.AREAS.total, false, G.SVG.AREAS.local);
-        return cube_result;
-    },
-
-    f_is_xy_on_cell: function (p_xy, n_64) {
-        var cube = G.PROCESS.f_cube_final_to_draw(n_64);
+    f_is_xy_on_cell: function (p_xy, n_64, arr_cube_perm) {
+        var cube = arr_cube_perm.cubes[n_64];
         return cube.f_is_point_on_face_z(p_xy);
     },
 
-    f_search_pressed_cell: function (p_xy) {
+    f_search_pressed_cell: function (p_xy, arr_cube_perm) {
         for (var i64 = 0; i64 < 64; i64++) {
+            //can do move here (on i64)
             if (G.BOARD_3D.f_is_legal_to_put(i64, G.PROCESS.arr_64_colors)) {
-                if (G.PROCESS.f_is_xy_on_cell(p_xy, i64)) {
+                //it is top face of cube, you press inside parallelogram
+                if (G.PROCESS.f_is_xy_on_cell(p_xy, i64, arr_cube_perm)) {
                     return i64;
                 }
             }

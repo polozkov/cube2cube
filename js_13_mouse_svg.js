@@ -10,8 +10,8 @@ G.SVG.MOUSE = {
 
     f_event_click: function (clicked_event) {
         var xy = G.SVG.MOUSE.f_get_xy_by_event(clicked_event);
-        if (G.PROCESS.f_search_pressed_cell(xy) != null) {
-            G.PROCESS.f_move_do(G.PROCESS.f_search_pressed_cell(xy), G.PROCESS.n_player_now);
+        if (G.PROCESS.f_search_pressed_cell(xy, G.PROCESS.arr_cube_with_perm) != null) {
+            G.PROCESS.f_move_do(G.PROCESS.f_search_pressed_cell(xy, G.PROCESS.arr_cube_with_perm), G.PROCESS.n_player_now);
             G.EL.f_do_sumbit_angles();
             G.EL.f_set_span_colors();
         }
