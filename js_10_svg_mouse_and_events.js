@@ -51,7 +51,8 @@ G.EL.SVG.MOUSE = {
     }
 
     for (var i_player = 2; i_player <= G.SETS.n_max_players; i_player++) {
-        document.getElementById("id_n_players_" + i_player).onclick = G.EL.f_set_span_colors;
+        var i_id = "id_n_players_" + i_player;
+        document.getElementById(i_id).onclick = G.EL.ACTIONS.f_set_span_colors;
     }
     G.EL.ACTIONS.f_set_span_colors();
 
