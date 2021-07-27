@@ -1,88 +1,177 @@
-//rows of 4 and 3 cells on cube 4*4*4
+//rows of 3 cells on cube 4*4*4
 G.ROWS = {
-    //is cell xyz on cube 4*4*4?
-    f_is_xyz_on_cube_board: function (xyz) {
-        return (0 <= xyz[0]) && (xyz[0] < 4) && (0 <= xyz[1]) && (xyz[1] < 4) && (0 <= xyz[2]) && (xyz[2] < 4);
+    arr_26_trios: [
+        [1, 1, 1], [1, 1, 0], [1, 1, -1], [1, 0, 1], [1, 0, 0], [1, 0, -1], [1, -1, 1], [1, -1, 0], [1, -1, -1],
+        [0, 1, 1], [0, 1, 0], [0, 1, -1], [0, 0, 1], [0, 0, -1], [0, -1, 1], [0, -1, 0], [0, -1, -1],
+        [-1, 1, 1], [-1, 1, 0], [-1, 1, -1], [-1, 0, 1], [-1, 0, 0], [-1, 0, -1], [-1, -1, 1], [-1, -1, 0], [-1, -1, -1]
+    ],
+
+    //convert (transfer n64 to xyz and back)
+    t: {
+        n64_to_xyz: [],
+        xyz_to_n64: []
     },
 
-    //multiply all coordinates on number n
-    f_mult_delta: function (xyz, n) {
-        return [xyz[0] * n, xyz[1] * n, xyz[2] * n];
-    },
+    //a - b
+    f_triplet_minus: function (a, b) { return [a[0] - b[0], a[1] - b[1], a[2] - b[2]]; },
+    //is triplet a equal to b
+    f_triplets_are_equal: function (a, b) { return ((a[0] === b[0]) && (a[1] === b[1]) && (a[2] === b[2])); },
 
-    //add two coordinates
-    f_add_delta: function (xyz_from, xyz_delta) {
-        return [xyz_from[0] + xyz_delta[0], xyz_from[1] + xyz_delta[1], xyz_from[2] + xyz_delta[2]];
-    },
+    //all tetras in cube
+    arr_tetras: [],
+    //all trios in cube
+    arr_trios: [],
 
-    //rows of 3
-    R3: {
-        //13..1 in 3*3*3; positive from the end before negative (one direction)
-        ARR_DIRS_XYZ: [
-            [1, 1, 1], [0, 1, 1], [-1, 1, 1],
-            [1, 0, 1], [0, 0, 1], [-1, 0, 1],
-            [1, -1, 1], [0, -1, 1], [-1, -1, 1],
-            [1, 1, 0], [0, 1, 0], [-1, 1, 0],
-            [1, 0, 0]],
-        //rows of exactly 3 cells, that can not be extended
-        ARR_3_UNIQUE: [],
-    },
-
-    //rows of 4
-    R4: {
-        //21, 5, -11...
-        ARR_DIRS_DELTAS: [],
-        f_xyz_to_delta: function (xyz) { return xyz[0] * 16 + xyz[1] * 4 + xyz[2] },
-        ARR_N64_TO_XYZ: [],
-        ARR_UNIQUE: []
-    },
-
-    R64: {
-
+    arr_64: {
+        trios: [],  //all triplets for each cell
+        tetras: [], //arr rows of 4 for each cell
     }
 };
 
-(function f_set_arr_for_G_ROWS() {
-    var i, j;
-
-    for (i = 0; i < 64; i++) {
-        G.ROWS.R4.ARR_N64_TO_XYZ[i] = [Math.floor(i / 16), Math.floor(i / 4) % 4, i % 4];
-    }
-
-    for (i = 0; i < G.ROWS.R3.ARR_DIRS_XYZ.length; i++) {
-        G.ROWS.R4.ARR_DIRS_DELTAS[i] = G.ROWS.R4.f_xyz_to_delta(G.ROWS.R3.ARR_DIRS_XYZ[i]);
-    }
-
-    function f_is_row_4(xyz_from, xyz_d, len_3_or_4) {
-        var xyz_delta = G.ROWS.f_mult_delta(xyz_d, len_3_or_4);
-        var xyz_new = G.ROWS.f_add_delta(xyz_from, xyz_delta);
-        if (!G.ROWS.f_is_xyz_on_cube_board(xyz_new)) {return false;}
-        if (len_3_or_4 == 3) {
-            var xyz_pre = G.ROWS.f_add_delta(xyz_from, G.ROWS.f_mult_delta(xyz_d, -1));
-            return G.ROWS.f_is_xyz_on_cube_board(xyz_pre);
-        }
-        return (len_3_or_4 != 3);
-    }
-
-    function f_arr4_by_from_and_delta(xyz_from, xyz_delta, len_3_or_4) {
-        var xyz_1 = G.ROWS.f_add_delta(xyz_from, xyz_delta);
-        var xyz_2 = G.ROWS.f_add_delta(xyz_1, xyz_delta);
-        var arr_len_3 = [xyz_from.slice(), xyz_1, xyz_2];
-        if (len_3_or_4 == 4) {
-            arr_len_3.push(G.ROWS.f_add_delta(xyz_2, xyz_delta));
-        }
-        return arr_len_3;
-    }
-
-    for (i = 0; i < 64; i++) {
-        var xyz_from = G.ROWS.R4.ARR_N64_TO_XYZ[i];
-        for (j = 0; j < 13; j++) {
-            var xyz_delta = G.ROWS.R3.ARR_DIRS_XYZ[j]
-            if (f_is_row_4(xyz_from, xyz_delta)) {
-                G.ROWS.R4.ARR_UNIQUE.push(f_arr4_by_from_and_delta(xyz_from, xyz_delta));
+(function f_set_rows() {
+    var n = 0;
+    for (var iz = 0; iz < 4; iz++) {
+        G.ROWS.t.xyz_to_n64.push([]);
+        for (var iy = 0; iy < 4; iy++) {
+            G.ROWS.t.xyz_to_n64[iz].push([]);
+            for (var ix = 0; ix < 4; ix++) {
+                G.ROWS.t.n64_to_xyz.push([ix, iy, iz]);
+                G.ROWS.t.xyz_to_n64[iz][iy].push(n);
+                n++;
             }
         }
     }
-}());
 
-debugger
+    function f_try_push_abc(ia, ib, ic) {
+        if ((ia >= ib) || (ib >= ic)) { return; }
+
+        var arr_abc = [G.ROWS.t.n64_to_xyz[ia], G.ROWS.t.n64_to_xyz[ib], G.ROWS.t.n64_to_xyz[ic], []];
+        var delta_1 = G.ROWS.f_triplet_minus(arr_abc[1], arr_abc[0]);
+        var delta_2 = G.ROWS.f_triplet_minus(arr_abc[2], arr_abc[1]);
+
+        //check that deltas are equal
+        if (!G.ROWS.f_triplets_are_equal(delta_1, delta_2)) { return; }
+        G.ROWS.arr_trios.push([ia, ib, ic])
+
+        for (var id = ic + 1; id < 64; id++) {
+            arr_abc[3] = G.ROWS.t.n64_to_xyz[id];
+            var delta_3 = G.ROWS.f_triplet_minus(arr_abc[3], arr_abc[2]);
+            //check that deltas are equal
+            if (G.ROWS.f_triplets_are_equal(delta_2, delta_3)) {
+                G.ROWS.arr_tetras.push([ia, ib, ic, id]);
+            }
+        }
+    }
+
+    //set G.ROWS.arr_tetras and .arr_trios
+    for (var ia = 0; ia < 64; ia++) {
+        for (var ib = ia; ib < 64; ib++) {
+            for (var ic = ib; ic < 64; ic++) {
+                if ((ia < ib) && (ib < ic)) {
+                    var arr_abc = [G.ROWS.t.n64_to_xyz[ia], G.ROWS.t.n64_to_xyz[ib], G.ROWS.t.n64_to_xyz[ic]];
+                    var delta_1 = G.ROWS.f_triplet_minus(arr_abc[1], arr_abc[0]);
+                    var delta_2 = G.ROWS.f_triplet_minus(arr_abc[2], arr_abc[1]);
+                    //check that deltas are equal
+                    if (G.ROWS.f_triplets_are_equal(delta_1, delta_2)) {
+                        G.ROWS.arr_trios.push([ia, ib, ic]);
+                    }
+                }
+                for (var id = ic; id < 64; id++) {
+                    if ((ia < ib) && (ib < ic) && (ic < id)) {
+                        var arr_xyz = [G.ROWS.t.n64_to_xyz[ia], G.ROWS.t.n64_to_xyz[ib], G.ROWS.t.n64_to_xyz[ic], G.ROWS.t.n64_to_xyz[id]];
+                        var d1 = G.ROWS.f_triplet_minus(arr_xyz[1], arr_xyz[0]);
+                        var d2 = G.ROWS.f_triplet_minus(arr_xyz[2], arr_xyz[1]);
+                        var d3 = G.ROWS.f_triplet_minus(arr_xyz[3], arr_xyz[2]);
+                        //check that deltas are equal
+                        if (G.ROWS.f_triplets_are_equal(d1, d2) && G.ROWS.f_triplets_are_equal(d1, d3)) {
+                            G.ROWS.arr_tetras.push([ia, ib, ic, id]);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    //console.log(G.ROWS.arr_tetras);
+    //console.log(G.ROWS.arr_trios);
+
+    function f_sort(a, i, j) {
+        if (a[i] <= a[j]) { return; }
+        var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+
+    function f_all_tetras_with_cell(n64) {
+        var arr_result_tetras = [];
+
+        function f_check_and_add_to_arr_trios(a) {
+            //sort only last element
+            f_sort(a, 2, 3); f_sort(a, 1, 2); f_sort(a, 0, 1);
+            if ((a[0] == a[1]) || (a[1] == a[2]) || (a[2] == a[3])) { return; };
+
+            var arr_xyz = [G.ROWS.t.n64_to_xyz[a[0]], G.ROWS.t.n64_to_xyz[a[1]], G.ROWS.t.n64_to_xyz[a[2]], G.ROWS.t.n64_to_xyz[a[3]]];
+
+            var d1 = G.ROWS.f_triplet_minus(arr_xyz[1], arr_xyz[0]);
+            var d2 = G.ROWS.f_triplet_minus(arr_xyz[2], arr_xyz[1]);
+            var d3 = G.ROWS.f_triplet_minus(arr_xyz[3], arr_xyz[2]);
+
+            //check that deltas are equal
+            if (G.ROWS.f_triplets_are_equal(d1, d2) && G.ROWS.f_triplets_are_equal(d1, d3)) { arr_result_tetras.push(a); }
+        }
+
+        for (var ia = 0; ia < 64; ia++) {
+            for (var ib = 0; ib < ia; ib++) {
+                for (var ic = 0; ic < ib; ic++) {
+                    f_check_and_add_to_arr_trios([ic, ib, ia, n64]);
+                }
+            }
+        }
+
+        return arr_result_tetras;
+    }
+
+    function f_all_trios_with_cell(n64) {
+        var arr_result_trios = [];
+
+        function f_check_and_add_to_arr_trios(a) {
+            //sort only last element
+            if (a[2] < a[1]) { a = [a[0], a[2], a[1]]; };
+            if (a[1] < a[0]) { a = [a[1], a[0], a[2]]; };
+            if (a[2] < a[1]) { a = [a[0], a[2], a[1]]; };
+            if ((a[0] == a[1]) || (a[1] == a[2])) { return; };
+
+            var arr_xyz = [G.ROWS.t.n64_to_xyz[a[0]], G.ROWS.t.n64_to_xyz[a[1]], G.ROWS.t.n64_to_xyz[a[2]]];
+
+            var d1 = G.ROWS.f_triplet_minus(arr_xyz[1], arr_xyz[0]);
+            if ((Math.max(d1[0], d1[1], d1[2]) > 1) || (Math.min(d1[0], d1[1], d1[2]) < (-1))) { return };
+
+            var d2 = G.ROWS.f_triplet_minus(arr_xyz[2], arr_xyz[1]);
+            if ((Math.max(d2[0], d2[1], d2[2]) > 1) || (Math.min(d2[0], d2[1], d2[2]) < (-1))) { return };
+
+            //check that deltas are equal, so: arr_xyz[1] is the center of (arr_xyz[0],arr_xyz[2])
+            if (G.ROWS.f_triplets_are_equal(d1, d2)) { arr_result_trios.push(a); }
+        }
+
+        for (var ia = 0; ia < 64; ia++) {
+            for (var ib = 0; ib < ia; ib++) {
+                f_check_and_add_to_arr_trios([ib, ia, n64]);
+            }
+        }
+        return arr_result_trios;
+    }
+
+    G.ROWS.arr_64.tetras = G.GENERATE.f_array_by_function(f_all_tetras_with_cell, 64);
+    G.ROWS.arr_64.trios = G.GENERATE.f_array_by_function(f_all_trios_with_cell, 64);
+
+
+    //console.log(G.ROWS.arr_64.trios[1]);
+    //console.log(G.ROWS.arr_64.trios);
+
+    //console.log("\n ---");
+    //console.log(G.ROWS.arr_64.tetras[0]);
+    //console.log(G.ROWS.arr_64.tetras[1]);
+    //console.log(G.ROWS.arr_64.tetras);
+
+    //debugger
+
+    //console.log(G.ROWS.t.n64_to_xyz);
+    //console.log(G.ROWS.t.xyz_to_n64);
+}());

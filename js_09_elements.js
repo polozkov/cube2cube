@@ -14,7 +14,7 @@ G.EL = {
         },
     },
 
-    //from 000 to 333
+    //constant arr from [0,0,0] to [3,3,3]
     arr_64_to_xyz: [],
 
     //cubes coordinates and their order (from back to forward)

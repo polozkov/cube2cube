@@ -65,9 +65,35 @@ G.EL.SVG.MOUSE = {
     G.EL.BUTTONS.back.onclick = G.EL.BUTTONS.f_back;
     G.EL.BUTTONS.new_game.onclick = G.EL.BUTTONS.f_new_game;
 
+    /*/ ***
+    G.EL.MOVES.arr_64_colors = G.f_show_row_3(G.f_show_row_3.n);
+    function checkKey(e) {
+        e = e || window.event;
+        if (e.keyCode == '37') {
+            // left arrow
+            G.f_show_row_3.n = (G.f_show_row_3.n + G.f_show_row_3.len - 1) % G.f_show_row_3.len;
+            G.EL.MOVES.arr_64_colors = G.f_show_row_3(G.f_show_row_3.n);
+            G.EL.ACTIONS.f_resize();
+            console.log(G.f_show_row_3.n);
+            return;
+        }
+        if (e.keyCode == '39') {
+            // right arrow
+            G.f_show_row_3.n = (G.f_show_row_3.n + G.f_show_row_3.len + 1) % G.f_show_row_3.len;
+            G.EL.MOVES.arr_64_colors = G.f_show_row_3(G.f_show_row_3.n);
+            G.EL.ACTIONS.f_resize();
+            console.log(G.f_show_row_3.n);
+            return;
+        }
+    }
+    document.onkeydown = checkKey;
+    */ //***
+
     window.onresize = G.EL.ACTIONS.f_resize;
     window.addEventListener("orientationchange", function () { G.EL.ACTIONS.f_resize(); }, false);
     G.EL.ACTIONS.f_resize();
 }());
+
+//debugger
 
 
