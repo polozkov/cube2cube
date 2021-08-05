@@ -105,6 +105,7 @@ G.EL = {
             var arr_order = [];
             for (var i64 = 0; i64 < 64; i64++) {
                 arr_cubes.push(f_cube_nxyz(G.EL.arr_64_to_xyz[i64], arr_owners_64[i64]));
+                //sort by coordinate "Z"
                 arr_order.push({ value: arr_cubes[i64].f_get_cube_center().v[2], i: i64 });
             }
             G.SORT.f_obj_value_i_bubble(arr_order);
@@ -128,6 +129,7 @@ G.EL = {
         },
 
         f_create_64_svg_cells: function (arr_cube_perm, arr_owners_64) {
+            //console.log(arr_cube_perm, '\n\n');
             var arr_face_perm = arr_cube_perm.cubes[0].f_permutation_face();
             var svg_board = '';
 
@@ -139,17 +141,17 @@ G.EL = {
                 return svg_face;
             }
 
-            function f_cube_i(obj_cube, n_owner) {
+            function f_cube_i(obj_cube, n_owner, index_cube) {
                 var svg_cube = '';
                 for (var i6 = 0; i6 < 6; i6++) {
                     svg_cube = svg_cube + f_face(obj_cube.f_get_face(arr_face_perm[i6]).p4, n_owner);
                 };
-                return svg_cube;
+                return '<g id="' + G.CONVERT.f_n64_to_cube_id(index_cube) + '"> ' + svg_cube + '</g> \n\n';
             }
 
             for (var i64 = 0; i64 < 64; i64++) {
                 if (G.EL.D3.f_is_visible(i64, arr_owners_64)) {
-                    svg_board = svg_board + f_cube_i(arr_cube_perm.cubes[i64], arr_owners_64[i64]);
+                    svg_board = svg_board + f_cube_i(arr_cube_perm.cubes[i64], arr_owners_64[i64], arr_cube_perm.perm[i64]);
                 }
             }
             return '<g stroke-linejoin="round">' + svg_board + '</g>';
@@ -178,10 +180,36 @@ G.EL = {
                 G.EL.SVG.area_total.b.x = G.EL.SVG.MAIN.clientWidth;
                 G.EL.SVG.area_total.b.y = G.EL.SVG.MAIN.clientHeight;
             }
+        },
+
+        f_win_row: function (cube_start, cube_finish, cube_win) {
+            var a = cube_start.f_get_cube_center().v;
+            var b = cube_finish.f_get_cube_center().v;
+            var svg_line_coords = '<line x1="' + a[0] + '" y1="' + a[1] + '" x2="' + b[0] + '" y2="' + b[1] + '"';
+            var line_width = cube_start.f_get_min_max_area().f_get_wh().f_get_min() * G.SETS.WIN.ratio_line_to_cube_size;
+            var SVG_LINE =  svg_line_coords + ' stroke-width="' + line_width + '" stroke="' + G.SETS.WIN.color_line + '" />';
+            
+            var c = cube_win.f_get_cube_center().v;
+            var ratio_dot_radius = 0.5 * G.SETS.WIN.ratio_dot_diameter_to_cube_size;
+            var r = cube_win.f_get_min_max_area().f_get_wh().f_get_min() * ratio_dot_radius;
+            var svg_circle_coords = '<circle cx="' + c[0] + '" cy="' + c[1] + '" r="' + r +'"';
+            var rs = r * G.SETS.WIN.ratio_dot_stroke_to_diameter; //stroke-width
+            var stroke = ' stroke="' + G.SETS.WIN.color_dot_stroke + '" stroke-width="' + rs;
+            var SVG_CIRCLE = svg_circle_coords + ' fill="' + G.SETS.WIN.color_dot +'"' + stroke + '" />';
+
+            return SVG_LINE + SVG_CIRCLE;
         }
     },
 
     ACTIONS: {
+        f_show_victory: function (new_move, win_row) {
+            var cube_start = G.EL.arr_cube_with_perm.cubes[win_row[0]];
+            var cube_finish = G.EL.arr_cube_with_perm.cubes[win_row[3]];
+            var cube_win = G.EL.arr_cube_with_perm.cubes[new_move.n_64];
+            
+            G.EL.SVG.MAIN.innerHTML = G.EL.SVG.MAIN.innerHTML + G.EL.SVG.f_win_row(cube_start, cube_finish, cube_win);
+        },
+
         f_do_sumbit_angles: function () {
             var m = G.EL.FORM.f_m();
 
@@ -190,6 +218,7 @@ G.EL = {
             var CUBE_SVG = G.EL.SVG.f_create_64_svg_cells(G.EL.arr_cube_with_perm, G.EL.MOVES.arr_64_colors);
 
             G.EL.SVG.MAIN.innerHTML = CUBE_SVG;
+            //console.log(G.EL.arr_cube_with_perm);
         },
 
         f_set_span_colors: function () {

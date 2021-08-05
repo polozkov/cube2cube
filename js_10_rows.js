@@ -67,103 +67,32 @@ G.ROWS = {
     for (var ia = 0; ia < 64; ia++) {
         for (var ib = ia; ib < 64; ib++) {
             for (var ic = ib; ic < 64; ic++) {
-                if ((ia < ib) && (ib < ic)) {
-                    var arr_abc = [G.ROWS.t.n64_to_xyz[ia], G.ROWS.t.n64_to_xyz[ib], G.ROWS.t.n64_to_xyz[ic]];
-                    var delta_1 = G.ROWS.f_triplet_minus(arr_abc[1], arr_abc[0]);
-                    var delta_2 = G.ROWS.f_triplet_minus(arr_abc[2], arr_abc[1]);
-                    //check that deltas are equal
-                    if (G.ROWS.f_triplets_are_equal(delta_1, delta_2)) {
-                        G.ROWS.arr_trios.push([ia, ib, ic]);
-                    }
-                }
-                for (var id = ic; id < 64; id++) {
-                    if ((ia < ib) && (ib < ic) && (ic < id)) {
-                        var arr_xyz = [G.ROWS.t.n64_to_xyz[ia], G.ROWS.t.n64_to_xyz[ib], G.ROWS.t.n64_to_xyz[ic], G.ROWS.t.n64_to_xyz[id]];
-                        var d1 = G.ROWS.f_triplet_minus(arr_xyz[1], arr_xyz[0]);
-                        var d2 = G.ROWS.f_triplet_minus(arr_xyz[2], arr_xyz[1]);
-                        var d3 = G.ROWS.f_triplet_minus(arr_xyz[3], arr_xyz[2]);
-                        //check that deltas are equal
-                        if (G.ROWS.f_triplets_are_equal(d1, d2) && G.ROWS.f_triplets_are_equal(d1, d3)) {
-                            G.ROWS.arr_tetras.push([ia, ib, ic, id]);
-                        }
-                    }
+                f_try_push_abc(ia, ib, ic)
+            }
+        }
+    }
+
+    function f_all_rows_with_cell(n64, all_rows, cell_rows) {
+        cell_rows[n64] = [];
+        for (var i = 0; i < all_rows.length; i++) {
+            for (var j = 0; j < all_rows[i].length; j++) {
+                if (n64 == all_rows[i][j]) {
+                    cell_rows[n64].push(all_rows[i].slice())
                 }
             }
         }
     }
+
+    for (var t64 = 0; t64 < 64; t64++) {
+        f_all_rows_with_cell(t64, G.ROWS.arr_tetras, G.ROWS.arr_64.tetras);
+        f_all_rows_with_cell(t64, G.ROWS.arr_trios, G.ROWS.arr_64.trios);
+    }
+
+
     //console.log(G.ROWS.arr_tetras);
-    //console.log(G.ROWS.arr_trios);
-
-    function f_sort(a, i, j) {
-        if (a[i] <= a[j]) { return; }
-        var t = a[i]; a[i] = a[j]; a[j] = t;
-    }
-
-    function f_all_tetras_with_cell(n64) {
-        var arr_result_tetras = [];
-
-        function f_check_and_add_to_arr_trios(a) {
-            //sort only last element
-            f_sort(a, 2, 3); f_sort(a, 1, 2); f_sort(a, 0, 1);
-            if ((a[0] == a[1]) || (a[1] == a[2]) || (a[2] == a[3])) { return; };
-
-            var arr_xyz = [G.ROWS.t.n64_to_xyz[a[0]], G.ROWS.t.n64_to_xyz[a[1]], G.ROWS.t.n64_to_xyz[a[2]], G.ROWS.t.n64_to_xyz[a[3]]];
-
-            var d1 = G.ROWS.f_triplet_minus(arr_xyz[1], arr_xyz[0]);
-            var d2 = G.ROWS.f_triplet_minus(arr_xyz[2], arr_xyz[1]);
-            var d3 = G.ROWS.f_triplet_minus(arr_xyz[3], arr_xyz[2]);
-
-            //check that deltas are equal
-            if (G.ROWS.f_triplets_are_equal(d1, d2) && G.ROWS.f_triplets_are_equal(d1, d3)) { arr_result_tetras.push(a); }
-        }
-
-        for (var ia = 0; ia < 64; ia++) {
-            for (var ib = 0; ib < ia; ib++) {
-                for (var ic = 0; ic < ib; ic++) {
-                    f_check_and_add_to_arr_trios([ic, ib, ia, n64]);
-                }
-            }
-        }
-
-        return arr_result_tetras;
-    }
-
-    function f_all_trios_with_cell(n64) {
-        var arr_result_trios = [];
-
-        function f_check_and_add_to_arr_trios(a) {
-            //sort only last element
-            if (a[2] < a[1]) { a = [a[0], a[2], a[1]]; };
-            if (a[1] < a[0]) { a = [a[1], a[0], a[2]]; };
-            if (a[2] < a[1]) { a = [a[0], a[2], a[1]]; };
-            if ((a[0] == a[1]) || (a[1] == a[2])) { return; };
-
-            var arr_xyz = [G.ROWS.t.n64_to_xyz[a[0]], G.ROWS.t.n64_to_xyz[a[1]], G.ROWS.t.n64_to_xyz[a[2]]];
-
-            var d1 = G.ROWS.f_triplet_minus(arr_xyz[1], arr_xyz[0]);
-            if ((Math.max(d1[0], d1[1], d1[2]) > 1) || (Math.min(d1[0], d1[1], d1[2]) < (-1))) { return };
-
-            var d2 = G.ROWS.f_triplet_minus(arr_xyz[2], arr_xyz[1]);
-            if ((Math.max(d2[0], d2[1], d2[2]) > 1) || (Math.min(d2[0], d2[1], d2[2]) < (-1))) { return };
-
-            //check that deltas are equal, so: arr_xyz[1] is the center of (arr_xyz[0],arr_xyz[2])
-            if (G.ROWS.f_triplets_are_equal(d1, d2)) { arr_result_trios.push(a); }
-        }
-
-        for (var ia = 0; ia < 64; ia++) {
-            for (var ib = 0; ib < ia; ib++) {
-                f_check_and_add_to_arr_trios([ib, ia, n64]);
-            }
-        }
-        return arr_result_trios;
-    }
-
-    G.ROWS.arr_64.tetras = G.GENERATE.f_array_by_function(f_all_tetras_with_cell, 64);
-    G.ROWS.arr_64.trios = G.GENERATE.f_array_by_function(f_all_trios_with_cell, 64);
-
-
+    
     //console.log(G.ROWS.arr_64.trios[1]);
-    //console.log(G.ROWS.arr_64.trios);
+    //console.log(G.ROWS);
 
     //console.log("\n ---");
     //console.log(G.ROWS.arr_64.tetras[0]);

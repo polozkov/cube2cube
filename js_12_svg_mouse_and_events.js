@@ -34,9 +34,14 @@ G.EL.SVG.MOUSE = {
         var xy = G.EL.SVG.MOUSE.f_get_xy_by_event(clicked_event);
         var n_cell = G.EL.SVG.MOUSE.f_search_pressed_cell(xy, G.EL.arr_cube_with_perm);
         if (n_cell != null) {
+            var new_move = {n_64: n_cell, n_player: G.EL.MOVES.n_player_now};
+            var win_row = G.RULES.f_is_row_4(G.EL.MOVES.arr_64_colors, new_move); //false if no winning rows
+
             G.EL.MOVES.f_move_do(n_cell, G.EL.MOVES.n_player_now);
             G.EL.ACTIONS.f_do_sumbit_angles();
             G.EL.ACTIONS.f_set_span_colors();
+
+            if (win_row) {G.EL.ACTIONS.f_show_victory(new_move, win_row); }
         }
     }
 };

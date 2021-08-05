@@ -18,33 +18,51 @@
             margin: 0;
             overflow-x: hidden;
         }
+
+        .class_player_1 {
+            background-color: #FF0000
+        }
+
+        .class_player_2 {
+            background-color: #FFD300
+        }
+
+        .class_player_3 {
+            background-color: #00CC00
+        }
     </style>
 </head>
 
 <body>
-    <div id="id_text_start_info">Крестики-нолики на несколько игроков:</div>
+    <div id="id_text_start_info">Крестики-нолики на несколько игроков:</div> <br>
 
-    <form id="id_form_n_players">Сколько игроков?  
-        <input type="radio" value="2" id="id_n_players_2" checked name="n_players"/>2
-        <input type="radio" value="3" id="id_n_players_3" name="n_players"/>3
-        <input type="radio" value="4" id="id_n_players_4" name="n_players"/>4
-        <input type="radio" value="5" id="id_n_players_5" name="n_players"/>5
-        <input type="radio" value="6" id="id_n_players_6" name="n_players"/>6<br>
-        <span id="id_rgb_1"></span><span id="id_rgb_2"></span><span id="id_rgb_3"></span><span id="id_rgb_4"></span><span id="id_rgb_5"></span><span id="id_rgb_6"></span>
+    <form id="id_form_n_players">ЧИСЛО ИГРОКОВ И ЦЕЛЬ ИГРЫ: <br>
+        <input type="radio" value="2" id="id_n_players_2" checked name="n_players" />2_игрока_4_в_ряд;
+        <input type="radio" value="3" id="id_n_players_3" name="n_players" />3_игрока_3_в_ряд<br>
+        <span id="id_rgb_1"></span> <span id="id_rgb_2"></span> <span id="id_rgb_3"> </span><br><br>
     </form>
 
+    <div>
+        Кто с кем играет: человек/компьютер<br>
+        <button><span class="class_player_1">чел</span> - <span class="class_player_2">чел</span></button>
+        <button><span class="class_player_1">чел</span> - <span class="class_player_2">комп</span></button>
+        <button><span class="class_player_1">комп</span> - <span class="class_player_2">чел</span></button>
+    </div>
+    <br>
+
     <button type="button" id="id_button_back">Ход назад</button>
+    <button type="button" id="id_button_comp_play">Компьютер, играй</button>
     <button type="button" id="id_button_new_game">Новая игра</button>
 
     <svg id="id_svg_game" style="background: #DDD"></svg>
 
-    <form style = "display: none">
+    <form style="display: none">
         <input type="number" step="1" min="-360" max="360" value="40" id="id_input_x" /><br>
         <input type="number" step="1" min="-360" max="360" value="15" id="id_input_y" /><br>
         <input type="number" step="1" min="-360" max="360" value="18" id="id_input_z" /><br>
         <button type="button" id="id_button_submit">Показать поворот с такими углами</button><br>
     </form>
-    
+
     <script src="js_01_SETS.js"></script>
     <script src="js_02_generate.js"></script>
     <script src="js_03_convert_sort.js"></script>
@@ -58,7 +76,8 @@
 
     <script src="js_09_elements.js"></script>
     <script src="js_10_rows.js"></script>
-    <script src="js_11_svg_mouse_and_events.js"></script>
+    <script src="js_11_rules.js"></script>
+    <script src="js_12_svg_mouse_and_events.js"></script>
 </body>
 
 </html>

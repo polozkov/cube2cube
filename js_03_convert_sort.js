@@ -29,7 +29,9 @@ G.CONVERT = {
             arr_result.push(arr_of_obj_with_i[i].i);
         }
         return arr_result;
-    }
+    },
+
+    f_n64_to_cube_id: function (n64) {return ("id_cube_" + n64); }
 };
 
 G.SORT = {
