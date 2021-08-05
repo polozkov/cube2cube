@@ -13,20 +13,29 @@ G.RULES = {
     },
 
     //move = {n_64: n_64, n_player: n_player}
-    f_is_row_4: function (position, move, is_without_move) {
-        if (!is_without_move) { G.RULES.MOVE.f_do(position, move); }
+    f_is_row_4: function (position, move) {
+        G.RULES.MOVE.f_do(position, move);
         //all rows woth this cell
         var rows = G.ROWS.arr_64.tetras[move.n_64];
         //test all rows
         for (var i = rows.length - 1; i >= 0; i--) {
             if (G.RULES.f_is_full_row(position, move.n_player, rows[i])) {
-                if (!is_without_move) { G.RULES.MOVE.f_undo(position, move); }
+                G.RULES.MOVE.f_undo(position, move);
                 //return first winning row
                 return rows[i].slice();
             }
         }
-        if (!is_without_move) { G.RULES.MOVE.f_undo(position, move); }
+        G.RULES.MOVE.f_undo(position, move);
         return false; //if no winning rows, return false
+    },
+
+    f_is_game_victory: function (p, who) {
+        var all_rows = G.ROWS.arr_tetras;
+        for (var i76 = 0; i76 < all_rows.length; i76++) {
+            var n0 = all_rows[i76][0], n1 = all_rows[i76][1], n2 = all_rows[i76][2], n3 = all_rows[i76][3];
+            if ((p[n0] === who) && (p[n1] === who) && (p[n2] === who) && (p[n3] === who)) {return true;}
+        }
+        return false;
     },
 
     f_generate_all_moves: function (position, n_player) {
@@ -46,7 +55,7 @@ G.RULES = {
 
         //test if you win, return first winning move (as array of 1 element)
         for (var i = 0; i < all_moves.length; i++) {
-            if (G.RULES.f_is_row_4(position, all_moves[i]), false) {
+            if (G.RULES.f_is_row_4(position, all_moves[i])) {
                 return [{ n_64: all_moves[i].n_64, n_player: n_player }];
             }
         }
@@ -55,7 +64,7 @@ G.RULES = {
 
         //test if opponent can win, return first defence
         for (var i = 0; i < all_moves.length; i++) {
-            if (G.RULES.f_is_row_4(position, { n_64: all_moves[i].n_64, n_player: next_player }, false)) {
+            if (G.RULES.f_is_row_4(position, { n_64: all_moves[i].n_64, n_player: next_player })) {
                 return [{ n_64: all_moves[i].n_64, n_player: n_player }];
             }
         }
@@ -67,5 +76,11 @@ G.RULES = {
     f_is_full_cube: function (position) {
         for (var i = 48; i < 64; i++) { if (position[i] == 0) { return false; } }
         return true;
+    },
+
+    f_n_empty_cells: function (position) {
+        var n;
+        for (var i = 0; i < 64; i++) {if (position[i] === 0) {n++;}}
+        return n;
     }
 }

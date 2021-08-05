@@ -33,12 +33,11 @@ G.EL.SVG.MOUSE = {
     //copm play, when cube is not full
     f_comp_play: function () {
         var best_move = G.AI.f_best_move(G.EL.MOVES.arr_64_colors, G.AI.depth, G.EL.MOVES.n_player_now);
+        var win_row = G.RULES.f_is_row_4(G.EL.MOVES.arr_64_colors, best_move);
 
         G.EL.MOVES.f_move_do(best_move.n_64, best_move.n_player);
         G.EL.ACTIONS.f_do_sumbit_angles();
 
-
-        var win_row = G.RULES.f_is_row_4(G.EL.MOVES.arr_64_colors, best_move, true);
         if (win_row) {
             G.EL.ACTIONS.f_show_victory(best_move, win_row);
             return;
@@ -56,7 +55,7 @@ G.EL.SVG.MOUSE = {
 
         if (n_cell != null) {
             var new_move = { n_64: n_cell, n_player: G.EL.MOVES.n_player_now };
-            var win_row = G.RULES.f_is_row_4(G.EL.MOVES.arr_64_colors, new_move, false); //false if no winning rows
+            var win_row = G.RULES.f_is_row_4(G.EL.MOVES.arr_64_colors, new_move); //false if no winning rows
 
             G.EL.MOVES.f_move_do(n_cell, G.EL.MOVES.n_player_now);
             G.EL.ACTIONS.f_do_sumbit_angles();
