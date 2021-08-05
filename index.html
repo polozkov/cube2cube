@@ -20,39 +20,39 @@
         }
 
         .class_player_1 {
-            background-color: #FF0000
+            background-color: #FF5555;
         }
 
         .class_player_2 {
-            background-color: #FFD300
+            background-color: #99A4EF;
         }
 
-        .class_player_3 {
-            background-color: #00CC00
+        .class_game_btn{
+            font-weight: bold;
         }
     </style>
 </head>
 
 <body>
-    <div id="id_text_start_info">Крестики-нолики на несколько игроков:</div> <br>
-
-    <form id="id_form_n_players">ЧИСЛО ИГРОКОВ И ЦЕЛЬ ИГРЫ: <br>
-        <input type="radio" value="2" id="id_n_players_2" checked name="n_players" />2_игрока_4_в_ряд;
-        <input type="radio" value="3" id="id_n_players_3" name="n_players" />3_игрока_3_в_ряд<br>
-        <span id="id_rgb_1"></span> <span id="id_rgb_2"></span> <span id="id_rgb_3"> </span><br><br>
-    </form>
+    <div>
+        Крестики нолики 3D: 2 игрока, 4 в ряд.<br>
+    </div>
 
     <div>
-        Кто с кем играет: человек/компьютер<br>
-        <button><span class="class_player_1">чел</span> - <span class="class_player_2">чел</span></button>
-        <button><span class="class_player_1">чел</span> - <span class="class_player_2">комп</span></button>
-        <button><span class="class_player_1">комп</span> - <span class="class_player_2">чел</span></button>
+        За какой цвет играет человек/компьютер?<br>
+        <button class="class_game_btn" id="id_comp_is_0">
+            <span class="class_player_1">ЧЕЛ</span> - <span class="class_player_2">ЧЕЛ</span></button>
+            <button class="class_game_btn" id="id_comp_is_1">
+                <span class="class_player_1">КОМП</span> - <span class="class_player_2">ЧЕЛ</span></button>
+        <button class="class_game_btn" id="id_comp_is_2">
+            <span class="class_player_1">ЧЕЛ</span> - <span class="class_player_2">КОМП</span></button>
     </div>
     <br>
 
-    <button type="button" id="id_button_back">Ход назад</button>
-    <button type="button" id="id_button_comp_play">Компьютер, играй</button>
-    <button type="button" id="id_button_new_game">Новая игра</button>
+    <button type="button" class="class_game_btn" id="id_button_back">Ход назад</button>
+    <button type="button" class="class_game_btn" id="id_button_comp_play">Компьютер, играй</button>
+    <button type="button" class="class_game_btn" id="id_button_new_game">Новая игра</button>
+
 
     <svg id="id_svg_game" style="background: #DDD"></svg>
 
@@ -77,7 +77,8 @@
     <script src="js_09_elements.js"></script>
     <script src="js_10_rows.js"></script>
     <script src="js_11_rules.js"></script>
-    <script src="js_12_svg_mouse_and_events.js"></script>
+    <script src="js_12_AI.js"></script>
+    <script src="js_13_svg_mouse_and_events.js"></script>
 </body>
 
 </html>

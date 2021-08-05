@@ -27,8 +27,11 @@ G.EL = {
     gap_xy_h: [12, 12, 10],
 
     MOVES: {
+        //0 - no comp; 1 - comp is first player; 2 - human-comp
+        game_comp_mode: 2,
+
         //amount of players
-        n_players: document.getElementById("id_form_n_players").n_players.value,
+        n_players: 2,
         //who play now
         n_player_now: 1,
         //owners of cells
@@ -221,19 +224,6 @@ G.EL = {
             //console.log(G.EL.arr_cube_with_perm);
         },
 
-        f_set_span_colors: function () {
-            G.EL.MOVES.n_players = document.getElementById("id_form_n_players").n_players.value;
-
-            for (var i_color = 1; i_color <= G.SETS.n_max_players; i_color++) {
-                var el_span = document.getElementById("id_rgb_" + i_color);
-                el_span.style = "color: " + G.SETS.RGB.arr_players[i_color];
-
-                var is_visible = (i_color <= G.EL.MOVES.n_players);
-                var is_active = (i_color == G.EL.MOVES.n_player_now);
-                el_span.innerHTML = is_visible ? (is_active ? "ХОДЯТ:█, " : "█, ") : "";
-            }
-        },
-
         f_resize: function () {
             G.EL.SVG.f_set_svg_sizes(3);
             G.EL.ACTIONS.f_do_sumbit_angles();
@@ -243,17 +233,27 @@ G.EL = {
     BUTTONS: {
         back: document.getElementById("id_button_back"),
         new_game: document.getElementById("id_button_new_game"),
+        arr_game_modes: [document.getElementById("id_comp_is_0"), document.getElementById("id_comp_is_1"), document.getElementById("id_comp_is_2")],
+
+        f_set_game_mode: function (new_game_mode) {
+            var old_game_mode = G.EL.MOVES.game_comp_mode;
+            for (i = 0; i <= 2; i++) {
+                G.EL.BUTTONS.arr_game_modes[i].style.opacity = (i == new_game_mode) ? 1 : G.SETS.button_inactive_game_mode_opacity;
+            }
+
+            if (new_game_mode == old_game_mode) {return; }
+
+            G.EL.MOVES.game_comp_mode = new_game_mode;
+        },
 
         f_back: function () {
             G.EL.MOVES.f_move_undo();
             G.EL.ACTIONS.f_do_sumbit_angles();
-            G.EL.ACTIONS.f_set_span_colors();
         },
 
         f_new_game: function () {
             G.EL.MOVES.f_move_undo_all();
             G.EL.ACTIONS.f_do_sumbit_angles();
-            G.EL.ACTIONS.f_set_span_colors();
         }
     }
 };
