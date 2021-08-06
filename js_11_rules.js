@@ -29,6 +29,7 @@ G.RULES = {
         return false; //if no winning rows, return false
     },
 
+    //"p" is position: array of 64 integer numbers of owners
     f_is_game_victory: function (p, who) {
         var all_rows = G.ROWS.arr_tetras;
         for (var i76 = 0; i76 < all_rows.length; i76++) {
@@ -79,7 +80,7 @@ G.RULES = {
     },
 
     f_n_empty_cells: function (position) {
-        var n;
+        var n = 0;
         for (var i = 0; i < 64; i++) {if (position[i] === 0) {n++;}}
         return n;
     }

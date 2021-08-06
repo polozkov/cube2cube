@@ -27,9 +27,6 @@ G.EL = {
     gap_xy_h: [12, 12, 10],
 
     MOVES: {
-        //0 - no comp; 1 - comp is first player; 2 - human-comp
-        game_comp_mode: 2,
-
         //amount of players
         n_players: 2,
         //who play now
@@ -232,22 +229,35 @@ G.EL = {
 
     BUTTONS: {
         back: document.getElementById("id_button_back"),
+        comp_play: document.getElementById("id_button_comp_play"),
         new_game: document.getElementById("id_button_new_game"),
+
         arr_game_modes: [document.getElementById("id_comp_is_0"), document.getElementById("id_comp_is_1"), document.getElementById("id_comp_is_2")],
 
-        f_set_game_mode: function (new_game_mode) {
-            var old_game_mode = G.EL.MOVES.game_comp_mode;
-            for (i = 0; i <= 2; i++) {
-                G.EL.BUTTONS.arr_game_modes[i].style.opacity = (i == new_game_mode) ? 1 : G.SETS.button_inactive_game_mode_opacity;
+        f_back: function (get_mode) {
+            //return 0, 1 or 2 moves (depending on game mode and is game_end or game_start)
+            var n_moves_done = G.EL.MOVES.arr_moves.length;
+            var n_moves_must_return = 1;
+
+            //zero mode - return one move (human versus human)
+            if (get_mode === 0) {
+                n_moves_must_return = (n_moves_done === 0) ? 0 : 1;
+            }
+            
+            //computer is the second player and its move always has pair
+            if (get_mode === 2) {
+                n_moves_must_return = 2;
+            }
+            
+            if (get_mode === 1) {
+                //last move do human
+                n_moves_must_return = (n_moves_done >= 64) ? 1 : 2;
+                //in the game computer do only first move; do not return it
+                if (n_moves_done === 1) {n_moves_must_return = 0; }
             }
 
-            if (new_game_mode == old_game_mode) {return; }
-
-            G.EL.MOVES.game_comp_mode = new_game_mode;
-        },
-
-        f_back: function () {
-            G.EL.MOVES.f_move_undo();
+            //console.log(' return:', n_moves_must_return, '  get_mode:', get_mode);
+            for (; n_moves_must_return > 0; n_moves_must_return--) {G.EL.MOVES.f_move_undo(); }
             G.EL.ACTIONS.f_do_sumbit_angles();
         },
 

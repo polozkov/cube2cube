@@ -37,43 +37,6 @@ G.AI = {
         }
     },
 
-    //player 1 is maximizing
-    f_minimax: function (position, depth, maximizing_player) {
-        //game victory by opponent
-        if (G.RULES.f_is_game_victory(position, 3 - maximizing_player)) {
-            return -(G.AI.VALUE.const_max_score + G.RULES.f_n_empty_cells(position));
-        }
-
-        if (depth <= 0) {
-            return G.AI.VALUE.f_calc_position(position, maximizing_player);
-        }
-
-        var value;
-        var arr_moves = G.RULES.f_generate_best_moves(position, maximizing_player);
-        var len = arr_moves.length;
-        if (len == 0) { return 0; }
-
-        var value_i;
-        if (maximizing_player == 1) {
-            value = -Infinity;
-            for (var i = 0; i < len; i++) {
-                G.RULES.MOVE.f_do(position, arr_moves[i]);
-                value_i = G.AI.f_minimax(position, depth - ((len===1) ? 0 : 1), 3 - maximizing_player);
-                G.RULES.MOVE.f_undo(position, arr_moves[i]);
-                value = Math.max(value, value_i);
-            }
-        } else {
-            value = Infinity;
-            for (var i = 0; i < len; i++) {
-                G.RULES.MOVE.f_do(position, arr_moves[i]);
-                value_i = G.AI.f_minimax(position, depth - ((len===1) ? 0 : 1), maximizing_player);
-                G.RULES.MOVE.f_undo(position, arr_moves[i]);
-                value = Math.min(value, value_i);
-            }
-        }
-        return value;
-    },
-
     f_negamax: function (position, depth, n_player_will_play) {
         if (depth <= 0) {
             return G.AI.VALUE.f_calc_position(position, n_player_will_play);
@@ -82,44 +45,57 @@ G.AI = {
         var arr_moves = G.RULES.f_generate_best_moves(position, n_player_will_play);
         var len = arr_moves.length;
 
-        if (len == 0) {return 0; };
+        //game is over in draw
+        if (len == 0) { return 0; };
+
+        //test if forse move
+        if (len === 1) {
+            //force move is attack (victory)
+            if (G.RULES.f_is_row_4(position, arr_moves[0])) {
+                return  (G.AI.VALUE.const_max_score + G.RULES.f_n_empty_cells(position));
+            }
+        }
 
         var value = -Infinity;
         var value_i;
+        var new_depth = (len === 1) ? depth : depth - 1;
 
         for (var i = 0; i < len; i++) {
             G.RULES.MOVE.f_do(position, arr_moves[i]);
-            value_i = G.AI.f_negamax(position, depth - 1, 3 - n_player_will_play);
+            value_i = -G.AI.f_negamax(position, new_depth, 3 - n_player_will_play);
             G.RULES.MOVE.f_undo(position, arr_moves[i]);
 
             value = Math.max(value, value_i);
         }
-        return -value;
+        return value;
     },
 
+    //computers best move
     f_best_move: function (position, depth, who) {
         var arr_moves = G.RULES.f_generate_best_moves(position, who);
-        if (arr_moves.length == 1) {console.log('force'); return arr_moves[0]; };
+        if (arr_moves.length == 1) { return arr_moves[0]; };
 
-        var i_score = 0;
+        var i_score;
         var best_i = 0;
-        var best_score = -G.AI.VALUE.const_max_score * 2;
+        var best_score = Infinity;
 
-        //when comp is second player, best score is minimun
-
+        //human is opponent, computer try minimize opponent
         for (var i = 0; i < arr_moves.length; i++) {
             G.RULES.MOVE.f_do(position, arr_moves[i]);
-            i_score = -G.AI.f_minimax(position, depth, 3 - who);
+            i_score = G.AI.f_negamax(position, depth, 3 - who);
+            //console.log(i, i_score, arr_moves[i]);
             G.RULES.MOVE.f_undo(position, arr_moves[i]);
 
-            if (i_score > best_score) {
+            //computer minimizes human
+            if (i_score < best_score) {
                 best_score = i_score;
                 best_i = i;
             }
         }
-
-        console.log(best_score, arr_moves[best_i]);
-        if (arr_moves.length == 1) { console.log(arr_moves[0].n_64, '\n');}
+        //console.log("\n");
+        //console.log(arr_moves[best_i].n_64 % 16, best_score, arr_moves[best_i]);
+        //console.log("\n\n\n");
+        if (arr_moves.length == 1) { console.log(arr_moves[0].n_64, '\n'); }
 
         return arr_moves[best_i];
     }

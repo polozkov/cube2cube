@@ -32,6 +32,11 @@ G.EL.SVG.MOUSE = {
 
     //copm play, when cube is not full
     f_comp_play: function () {
+        //game is finished in draw
+        if (G.RULES.f_is_full_cube(G.EL.MOVES.arr_64_colors)) {
+            return;
+        }
+
         var best_move = G.AI.f_best_move(G.EL.MOVES.arr_64_colors, G.AI.depth, G.EL.MOVES.n_player_now);
         var win_row = G.RULES.f_is_row_4(G.EL.MOVES.arr_64_colors, best_move);
 
@@ -40,11 +45,6 @@ G.EL.SVG.MOUSE = {
 
         if (win_row) {
             G.EL.ACTIONS.f_show_victory(best_move, win_row);
-            return;
-        }
-
-        //game is finished in draw
-        if (G.RULES.f_is_full_cube(G.EL.MOVES.arr_64_colors)) {
             return;
         }
     },
@@ -71,14 +71,69 @@ G.EL.SVG.MOUSE = {
                 return;
             }
 
-            if (G.EL.MOVES.game_comp_mode == G.EL.MOVES.n_player_now) {
+            if (G.MODE.game_mode == G.EL.MOVES.n_player_now) {
                 G.EL.SVG.MOUSE.f_comp_play();
             }
         }
     }
 };
 
-(function f_set_events() {
+G.MODE = {
+    //0 - no comp; 1 - comp is first player; 2 - human-comp
+    game_mode: 2,
+
+    //opacity of 3 buttons: one if selected by 100% visible, other 2 have opacity
+    f_set_opacity_of_game_mode_buttons: function (new_game_mode) {
+        for (i = 0; i <= 2; i++) {
+            G.EL.BUTTONS.arr_game_modes[i].style.opacity = (i == new_game_mode) ? 1 : G.SETS.button_inactive_game_mode_opacity;
+        }
+    },
+
+    f_set_game_mode: function (new_game_mode) {
+        var old_game_mode = G.MODE.game_mode;
+        if (new_game_mode == old_game_mode) { return; }
+        G.MODE.game_mode = new_game_mode;
+
+        G.MODE.f_set_opacity_of_game_mode_buttons(G.MODE.game_mode);
+
+        //human versus human, comp does not play
+        if (new_game_mode === 0) { return; }
+        if (new_game_mode === G.EL.MOVES.n_player_now) {
+            G.EL.SVG.MOUSE.f_comp_play();
+        }
+    },
+
+    f_comp_play_by_pressing_button: function () {
+        if (G.RULES.f_is_full_cube(G.EL.MOVES.arr_64_colors)) {
+            return;
+        };
+
+        //comp will be play for the second player only if it was first; in other case AI will be first
+        G.MODE.game_mode = (G.MODE.game_mode === 1) ? 2 : 1;
+        G.MODE.f_set_opacity_of_game_mode_buttons(G.MODE.game_mode);
+        G.EL.SVG.MOUSE.f_comp_play();
+    }
+};
+
+(function f_add_events() {
+    //set game modes
+    G.EL.BUTTONS.arr_game_modes[0].addEventListener("click", function () { G.MODE.f_set_game_mode(0); });
+    G.EL.BUTTONS.arr_game_modes[1].addEventListener("click", function () { G.MODE.f_set_game_mode(1); });
+    G.EL.BUTTONS.arr_game_modes[2].addEventListener("click", function () { G.MODE.f_set_game_mode(2); });
+
+    //button back, copm play and new game
+    G.EL.BUTTONS.back.addEventListener("click", function () { G.EL.BUTTONS.f_back(G.MODE.game_mode); });
+    G.EL.BUTTONS.comp_play.addEventListener("click", G.MODE.f_comp_play_by_pressing_button);
+    G.EL.BUTTONS.new_game.addEventListener("click", G.EL.BUTTONS.f_new_game);
+
+    //G.EL.FORM.button_submit.addEventListener("click", G.EL.ACTIONS.f_do_sumbit_angles);
+    G.EL.SVG.MAIN.addEventListener("mousedown", G.EL.SVG.MOUSE.f_event_click);
+
+    window.addEventListener("resize", G.EL.ACTIONS.f_resize, false);
+    window.addEventListener("orientationchange", function () { G.EL.ACTIONS.f_resize(); }, false);
+}());
+
+(function f_set_EL_arr_64_to_xyz_and_start_game() {
     for (var iz = 0; iz < 4; iz++) {
         for (var iy = 0; iy < 4; iy++) {
             for (var ix = 0; ix < 4; ix++) {
@@ -86,31 +141,13 @@ G.EL.SVG.MOUSE = {
             }
         }
     }
-    G.EL.BUTTONS.arr_game_modes[0].onclick = function () { G.EL.BUTTONS.f_set_game_mode(0) };
-    G.EL.BUTTONS.arr_game_modes[1].onclick = function () { G.EL.BUTTONS.f_set_game_mode(1) };
-    G.EL.BUTTONS.arr_game_modes[2].onclick = function () { G.EL.BUTTONS.f_set_game_mode(2) };
-    G.EL.BUTTONS.f_set_game_mode(G.EL.MOVES.game_comp_mode);
 
-    G.EL.SVG.f_set_svg_sizes(3);
-
+    G.MODE.f_set_game_mode(G.MODE.game_mode);
+    G.EL.SVG.f_set_svg_sizes(3); //repeat resizing 3 times
     G.EL.ACTIONS.f_do_sumbit_angles();
-    G.EL.FORM.button_submit.onclick = G.EL.ACTIONS.f_do_sumbit_angles;
-
-    G.EL.SVG.MAIN.addEventListener("mousedown", G.EL.SVG.MOUSE.f_event_click);
-    G.EL.BUTTONS.back.onclick = G.EL.BUTTONS.f_back;
-    G.EL.BUTTONS.new_game.onclick = G.EL.BUTTONS.f_new_game;
-
-    window.onresize = G.EL.ACTIONS.f_resize;
-    window.addEventListener("orientationchange", function () { G.EL.ACTIONS.f_resize(); }, false);
     G.EL.ACTIONS.f_resize();
+    G.MODE.f_set_opacity_of_game_mode_buttons(G.MODE.game_mode);
 }());
-
-//G.EL.MOVES. arr_64_colors[0] = 1;
-//G.EL.MOVES. arr_64_colors[1] = 1;
-//G.EL.MOVES. arr_64_colors[2] = 1;
-
-//G.EL.MOVES. arr_64_colors[4] = 1;
-//G.EL.MOVES. arr_64_colors[8] = 1;
 
 
 
